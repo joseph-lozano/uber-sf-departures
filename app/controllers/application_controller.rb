@@ -9,28 +9,33 @@ class ApplicationController < ActionController::Base
 
     @agencies = get_agencies
 
+    # get_BART(origin)
+
   end
 
 
-  # def routes
-  #   agency = params.keys[0]
-
-  #   p agency
-
-  #   @routes = get_routes_for(agency)
-
-  #   render json: @routes
-  # end
 
   def stops
-
-    # routeIDF = params.keys[0]
-
-    # @stops = get_stops_for_route(routeIDF)
 
     @all = get_all_stops
 
     render json: @all
+
+  end
+
+  def nearest_bart
+
+
+    origins = params.keys[0]
+
+
+    @nearest = [get_BART(origins)]
+
+    @nearest
+
+    render json: @nearest
+
+
 
   end
 
@@ -40,7 +45,7 @@ class ApplicationController < ActionController::Base
 
     locus =  params.keys[0].split("|")
 
-    @departures = get_next_departures_by_stop_name(locus[0], locus[1])
+    @departures = get_next_departures_by_stop_name(locus[0], locus[1]).to_json
 
     render json: @departures
 
@@ -145,7 +150,9 @@ class ApplicationController < ActionController::Base
       r.attr('StopCode')
     end
 
-   [names, stop_codes].transpose.uniq!
+   stops = [names, stop_codes].transpose.sort {|a,b| a[1] <=> b[1]}.uniq!
+
+   return remove_duplicates(stops).transpose
   end
 
   def get_stops_for_route(routeIDF)
@@ -165,6 +172,63 @@ class ApplicationController < ActionController::Base
     end
 
     return [names, stop_codes]
+  end
+
+  def remove_duplicates(arr)
+
+    names = arr.transpose[0]
+
+    codes = arr.transpose[1]
+
+    uniqs = [[],[]]
+
+    names.each_with_index do |n, i|
+      unless uniqs[0].include?(n)
+        uniqs[0].push(n)
+        uniqs[1].push(codes[i])
+      end
+    end
+
+    uniqs
+
+  end
+
+  def get_BART(origins)
+
+    stops = get_all_stops
+
+    destinations = []
+
+    stops.each do |s|
+      s[0]
+      destinations.push(s[0]+" BART")
+    end
+
+
+
+    destinations = destinations.join("|")
+
+    destinations.gsub!(/\(([^)]+)\)/,"")
+
+    p url = "https://maps.googleapis.com/maps/api/distancematrix/xml?origins=#{origins}&destinations=#{destinations}&key=#{Figaro.env.google_matrix}"
+
+    doc = Nokogiri::XML(open(url))
+
+    destination_addresses = []
+    travel_times = []
+
+    doc.xpath('//destination_address').each do |node|
+      destination_addresses.push(node.text)
+    end
+
+    doc.xpath('//duration//value').each do |node|
+    travel_times.push(node.text.to_i)
+    end
+
+    idx = travel_times.each_with_index.min[1]
+
+    closest_station = destination_addresses[idx]
+
   end
 
 end

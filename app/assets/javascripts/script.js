@@ -63,28 +63,41 @@
     })
   }
 
+  $('button').click(function(){
+    console.log("clicked")
+    $('.wait').text("One Moment Please..")
+  })
+
+  $('#location').change(function(){
+    console.log("change")
+  })
+
+
 
 var x = document.getElementById("location");
 
 function getLocation() {
 
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(getNearestBart);
     } else {
         $('#location').text("Geolocation is not supported by this browser.");
     }
 }
 
-function showPosition(position) {
-    buildGoogleAPIString(position)
-    $('#location').text("Latitude: " + position.coords.latitude +
-    " Longitude: " + position.coords.longitude);
+function showNearestStation(station) {
+    $('#location').text(station);
 }
 
-function buildGoogleAPIString(poistion){
-  console.log(position.coords)
+function getNearestBart(position){
+  origins = position.coords.latitude+","+position.coords.longitude
+    console.log("getting nearest station")
+  $.get('/nearest_bart', origins, function(json){
+    showNearestStation(json[0])
+  }, 'json')
 
 }
+
 
 
 

@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   get '/departures/', to: 'application#departures'
 
+  get '/nearest_bart/', to: 'application#nearest_bart'
+
   root to: 'application#index'
 
 
