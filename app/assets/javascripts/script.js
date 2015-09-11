@@ -39,6 +39,7 @@
         str += "</tr>"
       };
       $('table').append(str)
+      $('.table-container').hide().slideDown(200)
     }
   };
 
