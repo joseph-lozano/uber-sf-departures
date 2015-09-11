@@ -76,8 +76,14 @@ function getLocation() {
 }
 
 function showPosition(position) {
+    buildGoogleAPIString(position)
     $('#location').text("Latitude: " + position.coords.latitude +
     " Longitude: " + position.coords.longitude);
+}
+
+function buildGoogleAPIString(poistion){
+  console.log(position.coords)
+
 }
 
 
