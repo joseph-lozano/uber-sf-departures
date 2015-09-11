@@ -17,8 +17,8 @@
 
     getStops: function(arr){
       var options = ""
-      for (var r = 0; r < arr[0].length; r++) {
-        options += '<li class="pure-menu-item"><a href="#" class="pure-menu-link" value="'+arr[0][r]+'" code="'+arr[1][r]+'">'+arr[0][r]+'</a></li>'
+      for (var r = 0; r < arr.length; r++) {
+        options += '<li class="pure-menu-item"><a href="#" class="pure-menu-link" value="'+arr[r][0]+'" code="'+arr[r][1]+'">'+arr[r][0]+'</a></li>'
       };
       return options
     },
@@ -44,13 +44,13 @@
   };
 
 
-  var getStops = function() {
+  var getStops = (function() {
       $.get('/stops', uber.agency+"~"+uber.route_code, function(json){
       $('#stops-select').empty()
       $('#stops-select').append(uber.getStops(json))
       stopListener();
     }, "json")
-  }
+  })()
 
   var stopListener = function(){
     $('.stops-menu').next().find('a').click(function(){
@@ -63,28 +63,22 @@
     })
   }
 
-$(document).ready(
 
-  function(){
-  var clickListener = function(){
-    $('a').click(function(){
-      uber.current_route = $(this).text()+""
-      uber.route_code = $(this).attr('code')
-      getStops();
-      $('a.stops-menu').text("Now select a stop");
-    })
-  }
+var x = document.getElementById("location");
 
+function getLocation() {
 
-  $.get('/routes', uber.agency, function(json){
-    $('#routes-select').empty()
-    $('#routes-select').append(uber.getRoutes(json))
-    clickListener();
-  }, "json")
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        $('#location').text("Geolocation is not supported by this browser.");
+    }
+}
+
+function showPosition(position) {
+    $('#location').text("Latitude: " + position.coords.latitude +
+    " Longitude: " + position.coords.longitude);
+}
 
 
 
-
-
-
-})

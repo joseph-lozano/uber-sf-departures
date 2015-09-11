@@ -12,23 +12,25 @@ class ApplicationController < ActionController::Base
   end
 
 
-  def routes
-    agency = params.keys[0]
+  # def routes
+  #   agency = params.keys[0]
 
-    p agency
+  #   p agency
 
-    @routes = get_routes_for(agency)
+  #   @routes = get_routes_for(agency)
 
-    render json: @routes
-  end
+  #   render json: @routes
+  # end
 
   def stops
 
-    routeIDF = params.keys[0]
+    # routeIDF = params.keys[0]
 
-    @stops = get_stops_for_route(routeIDF)
+    # @stops = get_stops_for_route(routeIDF)
 
-    render json: @stops
+    @all = get_all_stops
+
+    render json: @all
 
   end
 
@@ -114,6 +116,36 @@ class ApplicationController < ActionController::Base
     end
 
     return [names, codes, direction]
+  end
+
+  def get_all_stops()
+    stops = get_routes_for("BART")
+    names = stops[0]
+    codes = stops[1]
+
+    routeIDFs = []
+
+    codes.each do |code|
+      routeIDFs.push("BART"+"~"+code.to_s)
+    end
+
+    routeIDFs = routeIDFs.join("|")
+
+   url = "http://services.my511.org/Transit2.0/GetStopsForRoutes.aspx?token=#{Figaro.env.token}&routeIDF=#{routeIDFs}"
+   doc = Nokogiri::XML(open(url))
+
+   stop_codes  = doc.xpath('//*[@StopCode]')
+   names = doc.xpath('//*[@name]')
+
+    names = names.map do |r|
+      r.attr('name')
+    end
+
+    stop_codes = stop_codes.map do |r|
+      r.attr('StopCode')
+    end
+
+   [names, stop_codes].transpose.uniq!
   end
 
   def get_stops_for_route(routeIDF)
