@@ -56,17 +56,15 @@
     $('.stops-menu').next().find('a').click(function(){
       $.get('/departures', uber.agency+"|"+$(this).text(),
       function(json){
-        console.log(json)
+        console.log(this.url.slice(17))
+        $('h3').text(this.url.slice(17))
         uber.buildTable(json)
       },
     "json")
     })
   }
 
-  $('button').click(function(){
-    console.log("clicked")
-    $('.wait').text("One Moment Please..")
-  })
+
 
   $('#location').change(function(){
     console.log("change")
@@ -78,6 +76,7 @@ var x = document.getElementById("location");
 
 function getLocation() {
 
+    $('.wait').text("One Moment Please..")
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(getNearestBart);
     } else {
@@ -93,7 +92,9 @@ function getNearestBart(position){
   origins = position.coords.latitude+","+position.coords.longitude
     console.log("getting nearest station")
   $.get('/nearest_bart', origins, function(json){
-    showNearestStation(json[0])
+    $("a:contains('"+json[0]+"')").trigger("click")
+    $('#wait').text("")
+
   }, 'json')
 
 }

@@ -1,5 +1,9 @@
 table {
   position: relative;
   top: 25px;
-  left: 30%;
+  left: 35%;
+}
+
+h3 {
+  text-align: center;
 }

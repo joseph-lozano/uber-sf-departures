@@ -29,8 +29,7 @@ class ApplicationController < ActionController::Base
     origins = params.keys[0]
 
 
-    @nearest = [get_BART(origins)]
-
+    @nearest = [get_BART(origins).split(",")[0]]
     @nearest
 
     render json: @nearest
