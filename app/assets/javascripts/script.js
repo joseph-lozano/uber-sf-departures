@@ -80,7 +80,7 @@ function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(getNearestBart);
     } else {
-        $('#location').text("Geolocation is not supported by this browser.");
+        $('#location').text("Geolocation is not supported by this browser. Please select from the menu to the right");
     }
 }
 
@@ -93,7 +93,7 @@ function getNearestBart(position){
     console.log("getting nearest station")
   $.get('/nearest_bart', origins, function(json){
     $("a:contains('"+json[0]+"')").trigger("click")
-    $('#wait').text("")
+    $('.wait').text("")
 
   }, 'json')
 
